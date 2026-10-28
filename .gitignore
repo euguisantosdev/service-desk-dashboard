@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.venv/
+.venv_teste/
+data/service_desk.db
+automacao/relatorio_sla.txt
+.streamlit/secrets.toml
