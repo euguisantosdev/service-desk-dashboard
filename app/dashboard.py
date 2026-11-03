@@ -111,8 +111,19 @@ st.markdown(
 )
 
 if not DB_PATH.exists():
-    with st.spinner("Preparando o banco de dados fictício (só acontece na primeira vez)..."):
-        _ensure_db()
+    try:
+        with st.spinner("Preparando o banco de dados fictício (só acontece na primeira vez)..."):
+            _ensure_db()
+    except Exception as erro:
+        st.error(
+            "Não foi possível preparar o banco de dados fictício na primeira "
+            "execução. Tente recarregar a página — se o problema persistir, "
+            "rode localmente `python data/gerar_dados_ficticios.py` antes de "
+            "abrir o dashboard."
+        )
+        with st.expander("Detalhes técnicos do erro"):
+            st.code(f"{type(erro).__name__}: {erro}")
+        st.stop()
 
 
 @st.cache_data(ttl=300)
@@ -149,7 +160,13 @@ def carregar_dados() -> pd.DataFrame:
 
 
 def main() -> None:
-    _ensure_db()
+    try:
+        _ensure_db()
+    except Exception as erro:
+        st.error("Não foi possível preparar o banco de dados. Tente recarregar a página.")
+        with st.expander("Detalhes técnicos do erro"):
+            st.code(f"{type(erro).__name__}: {erro}")
+        st.stop()
 
     if not DB_PATH.exists():
         st.error(
@@ -158,7 +175,17 @@ def main() -> None:
         )
         st.stop()
 
-    df = carregar_dados()
+    try:
+        df = carregar_dados()
+    except sqlite3.DatabaseError as erro:
+        st.error(
+            "O banco de dados parece estar corrompido ou incompleto. "
+            "Apague o arquivo `data/service_desk.db` e rode novamente "
+            "`python data/gerar_dados_ficticios.py` para recriá-lo."
+        )
+        with st.expander("Detalhes técnicos do erro"):
+            st.code(f"{type(erro).__name__}: {erro}")
+        st.stop()
 
     st.title("🎫 Service Desk Dashboard")
     st.caption(

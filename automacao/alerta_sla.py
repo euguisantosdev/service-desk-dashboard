@@ -38,14 +38,14 @@ ORDER BY pct_sla_consumido DESC
 """
 
 
-def gerar_relatorio() -> list[tuple]:
-    if not DB_PATH.exists():
+def gerar_relatorio(db_path: Path = DB_PATH) -> list[tuple]:
+    if not db_path.exists():
         raise FileNotFoundError(
-            f"Banco não encontrado em {DB_PATH}. "
+            f"Banco não encontrado em {db_path}. "
             "Rode antes: python data/gerar_dados_ficticios.py"
         )
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(db_path)
     try:
         cur = conn.execute(QUERY_RISCO)
         linhas = cur.fetchall()
@@ -54,12 +54,12 @@ def gerar_relatorio() -> list[tuple]:
     return linhas
 
 
-def escrever_relatorio(linhas: list[tuple]) -> None:
+def escrever_relatorio(linhas: list[tuple], relatorio_path: Path = RELATORIO_PATH) -> None:
     agora = datetime.now().strftime("%d/%m/%Y %H:%M")
     estourados = [l for l in linhas if l[6] >= 100]
     em_risco = [l for l in linhas if l[6] < 100]
 
-    with open(RELATORIO_PATH, "w", encoding="utf-8") as f:
+    with open(relatorio_path, "w", encoding="utf-8") as f:
         f.write(f"RELATÓRIO DE ALERTA DE SLA — gerado em {agora}\n")
         f.write("=" * 60 + "\n\n")
         f.write(f"Total de chamados em risco ou estourados: {len(linhas)}\n")
@@ -89,7 +89,7 @@ def escrever_relatorio(linhas: list[tuple]) -> None:
             if len(em_risco) > 20:
                 f.write(f"... e mais {len(em_risco) - 20} chamados em risco.\n")
 
-    print(f"Relatório gerado em {RELATORIO_PATH}")
+    print(f"Relatório gerado em {relatorio_path}")
     print(f"  {len(estourados)} estourados | {len(em_risco)} em risco")
 
 

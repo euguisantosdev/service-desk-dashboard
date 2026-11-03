@@ -1,5 +1,7 @@
 # 🎫 Service Desk Dashboard
 
+[![Testes](https://github.com/euguisantosdev/service-desk-dashboard/actions/workflows/tests.yml/badge.svg)](https://github.com/euguisantosdev/service-desk-dashboard/actions/workflows/tests.yml)
+
 Simulação de um ambiente real de suporte técnico (service desk): banco de
 chamados em SQL, queries de análise, automação de alerta de SLA e um
 dashboard interativo em Streamlit.
@@ -23,12 +25,17 @@ lida todo dia.
 - **Dashboard interativo** — painel em Streamlit com KPIs, filtros e
   gráficos, consumindo direto do banco (`app/dashboard.py`).
 
+## Modelo de dados
+
+![Diagrama ER: analistas e categorias se relacionam com chamados](docs/schema.png)
+
 ## Estrutura
 
 ```
 service-desk-dashboard/
 ├── README.md
 ├── requirements.txt
+├── requirements-dev.txt        # dependências extras para rodar os testes
 ├── sql/
 │   ├── schema.sql              # modelagem das tabelas
 │   └── queries_analise.sql     # 9 queries de análise
@@ -38,6 +45,11 @@ service-desk-dashboard/
 │   └── alerta_sla.py           # gera relatório de chamados em risco de SLA
 ├── app/
 │   └── dashboard.py            # dashboard Streamlit
+├── tests/                      # testes automatizados (pytest)
+├── .github/workflows/
+│   └── tests.yml               # roda os testes a cada push (GitHub Actions)
+├── docs/
+│   └── schema.png              # diagrama ER do banco
 └── screenshots/
     └── dashboard.png
 ```
@@ -66,6 +78,21 @@ streamlit run app/dashboard.py
 
 O dashboard abre automaticamente em `http://localhost:8501`.
 
+## Rodando os testes
+
+```bash
+pip install -r requirements-dev.txt
+pytest tests/ -v
+```
+
+Os testes rodam automaticamente a cada push via GitHub Actions
+(`.github/workflows/tests.yml`) — o badge no topo deste README mostra o
+status da última execução. Eles cobrem: geração dos dados fictícios,
+validade de todas as 9 queries de análise, e a lógica do script de alerta
+de SLA — incluindo um teste de regressão para um bug real que já aconteceu
+neste projeto (chamados em aberto se concentrando artificialmente em um
+único dia no gráfico de volume).
+
 ## Ver sem instalar nada
 
 🔗 **[Abrir o dashboard publicado](https://service-desk-dashboard-8qhpzeyamo75tk9qklbfjw.streamlit.app/)**
@@ -75,12 +102,24 @@ então o link acima já abre com os dados prontos — sem precisar clonar nada.
 
 ## Dados
 
-Todos os dados são fictícios, gerados por `data/gerar_dados_ficticios.py`
-com distribuições propositalmente realistas (ex: severidades mais altas
+Todos os dados são fictícios, gerados por `data/gerar_dados_ficticios.py` —
+não há nenhum dado real de cliente ou empresa aqui. Mas o *modelo* por trás
+deles (as categorias, os níveis de SLA, as causas raiz, a proporção de
+reabertura) não foi inventado aleatoriamente: reflete o que eu via no dia a
+dia atendendo suporte N1/N2/N3 — categorias como "Acesso/Senha" e
+"Impressora" com SLA curto, "Sistema Interno Legado" e "Banco de
+Dados/SQL" com SLA mais longo e maior taxa de reabertura, chamados críticos
+sendo atendidos mais rápido mas ainda assim estourando SLA numa fração
+realista dos casos.
+
+A geração segue regras propositalmente realistas (severidades mais altas
 tendem a ser resolvidas mais rápido, categorias mais complexas reabrem
-mais, nem todo chamado "em aberto" está estourando o SLA). A seed é fixa
-(`random.seed(42)`), então qualquer pessoa que rodar o script gera
-exatamente o mesmo banco.
+mais, nem todo chamado "em aberto" está estourando o SLA, o backlog de
+chamados em aberto fica espalhado pelos últimos dias em vez de
+concentrado artificialmente em um único dia) e é coberta por testes
+automatizados que travam essas regras — ver `tests/test_gerar_dados.py`.
+A seed é fixa (`random.seed(42)`), então qualquer pessoa que rodar o
+script gera exatamente o mesmo banco.
 
 ## Por que esse projeto
 
