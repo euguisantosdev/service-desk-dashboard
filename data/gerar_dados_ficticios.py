@@ -110,9 +110,11 @@ def gerar_chamados(conn: sqlite3.Connection) -> None:
         if resolvido:
             dias_atras = random.uniform(0.1, DIAS_HISTORICO)
         else:
-            # até 3x o SLA da categoria (em dias) ou no máximo 5 dias,
-            # o que for menor, pra simular backlog realista
-            dias_atras = random.uniform(0.05, min(5, max(0.5, sla_horas / 24 * 3)))
+            # Backlog de chamados ainda em aberto: espalhado nos últimos ~4
+            # dias (independente do SLA da categoria), não só "hoje". Isso
+            # evita que todos os chamados em aberto caiam no mesmo dia no
+            # gráfico de volume (o que criaria um pico artificial de dados).
+            dias_atras = random.uniform(0.1, 4)
 
         data_abertura = agora - timedelta(days=dias_atras)
 
