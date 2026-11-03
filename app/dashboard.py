@@ -14,6 +14,7 @@ apontando para este mesmo arquivo como "main file".
 """
 
 import sqlite3
+import sys
 from pathlib import Path
 
 import pandas as pd
@@ -22,6 +23,13 @@ import streamlit as st
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DB_PATH = BASE_DIR / "data" / "service_desk.db"
+
+# Garante que o banco existe (gera na primeira execução, incluindo no
+# Streamlit Community Cloud, onde não há como rodar o script antes do deploy).
+if not DB_PATH.exists():
+    sys.path.insert(0, str(BASE_DIR / "data"))
+    import gerar_dados_ficticios
+    gerar_dados_ficticios.main()
 
 st.set_page_config(
     page_title="Service Desk Dashboard",
