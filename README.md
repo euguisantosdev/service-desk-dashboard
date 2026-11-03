@@ -48,7 +48,7 @@ Pré-requisito: Python 3.10+.
 
 ```bash
 # 1. clonar o repositório
-git clone https://github.com/<seu-usuario>/service-desk-dashboard.git
+git clone https://github.com/euguisantosdev/service-desk-dashboard.git
 cd service-desk-dashboard
 
 # 2. instalar dependências
@@ -68,8 +68,10 @@ O dashboard abre automaticamente em `http://localhost:8501`.
 
 ## Ver sem instalar nada
 
-[Link do dashboard publicado — adicionar após o deploy no Streamlit
-Community Cloud]
+🔗 **[Abrir o dashboard publicado](https://service-desk-dashboard-8qhpzeyamo75tk9qklbfjw.streamlit.app/)**
+
+O app gera o banco de dados fictício automaticamente na primeira execução,
+então o link acima já abre com os dados prontos — sem precisar clonar nada.
 
 ## Dados
 
