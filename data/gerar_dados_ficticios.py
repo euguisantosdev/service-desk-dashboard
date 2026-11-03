@@ -11,6 +11,7 @@ Uso:
 Gera: data/service_desk.db
 """
 
+import os
 import sqlite3
 import random
 from datetime import datetime, timedelta
@@ -183,18 +184,27 @@ def gerar_chamados(conn: sqlite3.Connection) -> None:
 
 def main() -> None:
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    if DB_PATH.exists():
-        DB_PATH.unlink()
 
-    conn = sqlite3.connect(DB_PATH)
+    # Gera em um arquivo temporário e só troca pelo definitivo no final
+    # (os.replace é atômico). Isso evita corromper o banco se duas
+    # execuções tentarem gerar os dados ao mesmo tempo — cenário comum
+    # em plataformas de deploy (ex: Streamlit Community Cloud) que podem
+    # rodar o app mais de uma vez na inicialização.
+    tmp_path = DB_PATH.with_suffix(".tmp")
+    if tmp_path.exists():
+        tmp_path.unlink()
+
+    conn = sqlite3.connect(tmp_path)
     try:
         criar_schema(conn)
         popular_dimensoes(conn)
         gerar_chamados(conn)
         total = conn.execute("SELECT COUNT(*) FROM chamados").fetchone()[0]
-        print(f"Banco gerado em {DB_PATH} com {total} chamados.")
     finally:
         conn.close()
+
+    os.replace(tmp_path, DB_PATH)
+    print(f"Banco gerado em {DB_PATH} com {total} chamados.")
 
 
 if __name__ == "__main__":
