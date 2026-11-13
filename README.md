@@ -85,7 +85,7 @@ pip install -r requirements-dev.txt
 pytest tests/ -v
 ```
 
-Os testes rodam automaticamente a cada push via GitHub Actions
+São 25 testes. Eles rodam automaticamente a cada push via GitHub Actions
 (`.github/workflows/tests.yml`) — o badge no topo deste README mostra o
 status da última execução. Eles cobrem: geração dos dados fictícios,
 validade de todas as 9 queries de análise, e a lógica do script de alerta
@@ -98,7 +98,11 @@ neste projeto (chamados em aberto se concentrando artificialmente em um
 🔗 **[Abrir o dashboard publicado](https://service-desk-dashboard-8qhpzeyamo75tk9qklbfjw.streamlit.app/)**
 
 O app gera o banco de dados fictício automaticamente na primeira execução,
-então o link acima já abre com os dados prontos — sem precisar clonar nada.
+então o link acima abre com os dados prontos — sem precisar clonar nada.
+
+> **Atenção:** o app publicado entra em repouso após um período sem acesso. Se
+> aparecer a mensagem "This app has gone to sleep due to inactivity", clique em
+> "Yes, get this app back up!" e aguarde alguns segundos.
 
 ## Dados
 
@@ -123,11 +127,21 @@ script gera exatamente o mesmo banco.
 
 ## Por que esse projeto
 
-Depois de atender em média 110 clientes/dia em suporte técnico, o que me
-faltava não era saber atender — era conseguir mostrar, com dado, onde o
-processo trava. Esse projeto é essa pergunta respondida: em vez de um
-CRUD genérico, é a modelagem e a análise de um problema que eu já vivo na
-prática.
+Na rotina de suporte e sustentação, o que costuma faltar não é saber
+atender, é conseguir mostrar, com dados, onde o processo trava. Este projeto
+tenta responder a essa pergunta: em vez de um CRUD genérico, é a modelagem e
+a análise de um problema que eu conheço de perto.
+
+## Limitações
+
+- **Os dados são fictícios e gerados por regras.** Os padrões que o painel mostra
+  refletem essas regras, não uma operação real, e não devem ser lidos como
+  indicadores de nenhuma empresa.
+- As consultas usam funções de data do SQLite (`JULIANDAY`); rodar em outro banco
+  (por exemplo, PostgreSQL) exigiria adaptação.
+- O limite de 80% do prazo consumido, usado no alerta de SLA, é uma escolha de projeto.
+- O painel está concentrado em um único arquivo (`app/dashboard.py`) e não tem testes próprios.
+- O alerta grava um relatório em arquivo; não envia e-mail nem mensagem.
 
 ---
 Guilherme dos Santos Bueno — Sorocaba/SP
